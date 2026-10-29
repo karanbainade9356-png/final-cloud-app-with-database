@@ -36,20 +36,46 @@
 </nav>
 
 <div class="container-fluid">
-    {% if grade > 80 %}
+    {% if grade >= 80 %}
     <div class="alert alert-success">
-       <!--HINT Display passed info -->
+        <h4>Congratulations! You passed the exam with score {{ grade }}/100!</h4>
     </div>
-        {% else %}
-        <div class="alert alert-danger">
-            <!--HINT Display failed info -->
-        </div>
-        <a class="btn btn-link text-danger" href="{% url 'onlinecourse:course_details' course.id %}">Re-test</a>
-        {% endif %}
-        <div class="card-columns-vertical mt-1">
-        <h5 class="">Exam results</h5>
-            <!--HINT Display exam results-->
-        </div>
+    {% else %}
+    <div class="alert alert-danger">
+        <h4>You did not pass the exam. Your score is {{ grade }}/100.</h4>
     </div>
+    <a class="btn btn-link text-danger" href="{% url 'onlinecourse:course_details' course.id %}">Re-test</a>
+    {% endif %}
+    <div class="card-columns-vertical mt-1">
+        <h5>Exam results</h5>
+        {% for question in course.question_set.all %}
+            <div class="card mt-1">
+                <div class="card-header"><h5>{{ question.question_text }}</h5></div>
+                <div class="card-body">
+                    {% for choice in question.choice_set.all %}
+                        <div class="mb-1">
+                            {% if choice.is_correct and choice.id in selected_ids %}
+                                <span class="badge badge-success">&#10004;</span>
+                                <span class="text-success font-weight-bold">{{ choice.choice_text }}</span>
+                                <span class="badge badge-success">Correct</span>
+                                <span class="badge badge-info">Your choice</span>
+                            {% elif not choice.is_correct and choice.id in selected_ids %}
+                                <span class="badge badge-danger">&#10008;</span>
+                                <span class="text-danger">{{ choice.choice_text }}</span>
+                                <span class="badge badge-info">Your choice</span>
+                            {% elif choice.is_correct %}
+                                <span class="badge badge-success">&#10004;</span>
+                                <span class="text-success">{{ choice.choice_text }}</span>
+                                <span class="badge badge-success">Correct Answer</span>
+                            {% else %}
+                                <span>{{ choice.choice_text }}</span>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
 </body>
 </html>
